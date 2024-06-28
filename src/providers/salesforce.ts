@@ -1,8 +1,8 @@
 import { OAuth2Client } from "oslo/oauth2";
 
-import type { OAuth2ProviderWithPKCE } from "../index.js";
+import type { OAuth2Provider } from "../index.js";
 
-export class Salesforce implements OAuth2ProviderWithPKCE {
+export class Salesforce implements OAuth2Provider {
 	private client: OAuth2Client;
 	private clientSecret: string;
 
@@ -18,25 +18,21 @@ export class Salesforce implements OAuth2ProviderWithPKCE {
 
 	public async createAuthorizationURL(
 		state: string,
-		codeVerifier: string,
 		options?: {
 			scopes?: string[];
 		}
 	): Promise<URL> {
 		return await this.client.createAuthorizationURL({
 			state,
-			codeVerifier,
 			scopes: options?.scopes ?? []
 		});
 	}
 
 	public async validateAuthorizationCode(
 		code: string,
-		codeVerifier: string
 	): Promise<SalesforceTokens> {
 		const result = await this.client.validateAuthorizationCode<TokenResponseBody>(code, {
 			credentials: this.clientSecret,
-			codeVerifier
 		});
 		return {
 			accessToken: result.access_token,
